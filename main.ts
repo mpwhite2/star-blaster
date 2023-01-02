@@ -1,5 +1,39 @@
 namespace SpriteKind {
     export const Laser = SpriteKind.create()
+    export const G = SpriteKind.create()
+}
+function Pewpew () {
+    if (Math.percentChance(Laseroffset)) {
+        Enemy1 = sprites.allOfKind(SpriteKind.Enemy)._pickRandom()
+        if (Enemy1 == myEnemy) {
+            Img = img`
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . 8 8 . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . 8 8 . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                . . . . . . . . . . . . . . . . 
+                `
+        } else {
+            Img = img`
+                2 2 
+                2 2 
+                `
+        }
+        projectile3 = sprites.createProjectileFromSprite(Img, Enemy1, 100, 0)
+        projectile3.setKind(SpriteKind.Laser)
+        music.zapped.play()
+    }
 }
 controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
     projectile = sprites.createProjectileFromSprite(img`
@@ -8,12 +42,28 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         `, Ship, -100, 0)
     music.pewPew.play()
 })
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    if (sprites.allOfKind(SpriteKind.Enemy).length > 0) {
+        projectile6 = sprites.createProjectileFromSprite(img`
+            . . . . . . . . . d 
+            . . . . . . . d d d 
+            2 d d d d d d d d d 
+            . . . . . . . d d d 
+            . . . . . . . . . d 
+            `, Ship, 0, 0)
+        projectile6.follow(sprites.allOfKind(SpriteKind.Enemy)._pickRandom())
+        projectile6.startEffect(effects.fire)
+        info.changeScoreBy(-1)
+    }
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Laser, function (sprite, otherSprite) {
     music.bigCrash.play()
     info.changeLifeBy(-1)
     otherSprite.destroy(effects.disintegrate, 500)
-    sprite.startEffect(effects.ashes, 500)
+    sprite.startEffect(effects.bubbles, 500)
     scene.cameraShake(8, 500)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Laser, effects.starField, 500)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Projectile, effects.starField, 500)
 })
 sprites.onOverlap(SpriteKind.Laser, SpriteKind.Projectile, function (sprite, otherSprite) {
     sprite.destroy(effects.warmRadial, 500)
@@ -24,7 +74,27 @@ info.onLifeZero(function () {
     game.over(false)
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
-    info.changeScoreBy(1)
+    if (otherSprite.image == img`
+        2 . . . . . . . . . . . . . . 
+        2 2 . . . . . . . . . . . . . 
+        2 2 2 2 2 . . . . . . . . . . 
+        2 2 2 2 2 2 2 . . . . . . . . 
+        . . . . 2 2 2 2 2 . . . . . . 
+        . . . . . . 2 2 2 2 . . . . . 
+        . . . . . . 2 2 2 2 2 2 2 . . 
+        . . . 4 4 2 2 2 2 2 f f 2 2 2 
+        . . . . . . 2 2 2 2 2 2 2 . . 
+        . . . . . . 2 2 2 2 . . . . . 
+        . . . . 2 2 2 2 2 . . . . . . 
+        2 2 2 2 2 2 2 . . . . . . . . 
+        2 2 2 2 2 . . . . . . . . . . 
+        2 2 . . . . . . . . . . . . . 
+        2 . . . . . . . . . . . . . . 
+        `) {
+        info.changeScoreBy(1)
+    } else {
+        info.changeScoreBy(2)
+    }
     sprite.destroy()
     otherSprite.destroy(effects.disintegrate, 500)
     Laseroffset += 2.5
@@ -34,15 +104,22 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSp
     music.bigCrash.play()
     info.changeLifeBy(-1)
     otherSprite.destroy(effects.disintegrate, 500)
-    sprite.startEffect(effects.ashes, 500)
+    sprite.startEffect(effects.bubbles, 500)
     scene.cameraShake(8, 500)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Projectile, effects.starField, 500)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Laser, effects.starField, 500)
 })
 let projectile2: Sprite = null
+let projectile4: Sprite = null
+let projectile5: Sprite = null
+let Enemy2: Sprite = null
+let projectile6: Sprite = null
+let projectile: Sprite = null
 let projectile3: Sprite = null
 let Img: Image = null
 let myEnemy: Sprite = null
 let Enemy1: Sprite = null
-let projectile: Sprite = null
+let Laseroffset = 0
 let Ship: Sprite = null
 scroller.setLayerImage(scroller.BackgroundLayer.Layer0, img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -313,41 +390,67 @@ Ship.setStayInScreen(true)
 Ship.setPosition(145, 60)
 controller.moveSprite(Ship, 0, 50)
 info.setScore(0)
-let Laseroffset = 10
+Laseroffset = 10
 let Enemyoffset = 10
-info.setLife(3)
-game.onUpdateInterval(100, function () {
-    if (Math.percentChance(Laseroffset)) {
-        Enemy1 = sprites.allOfKind(SpriteKind.Enemy)._pickRandom()
-        if (Enemy1 == myEnemy) {
-            Img = img`
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . 8 8 . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . 8 8 . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                . . . . . . . . . . . . . . . . 
-                `
-        } else {
-            Img = img`
-                2 2 
-                2 2 
-                `
+info.setLife(5)
+game.onUpdate(function () {
+    if (sprites.allOfKind(SpriteKind.Player).length > 2) {
+        Enemy2 = sprites.allOfKind(SpriteKind.Enemy)._pickRandom()
+        if (Enemy2.image == img`
+            . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . 
+            . . . . . 2 2 2 . . . . . . . 
+            . . . . 2 2 . 2 2 . . . . . . 
+            . . . 2 2 . . . 2 2 c c . . . 
+            . . 2 2 . . . . . . . . . . . 
+            4 2 2 2 2 2 7 7 . . . . . . . 
+            4 2 2 2 2 2 7 7 . . . . . . . 
+            . . 2 2 . . . . . . . . . . . 
+            . . . 2 2 . . . 2 2 c c . . . 
+            . . . . 2 2 . 2 2 . . . . . . 
+            . . . . . 2 2 2 . . . . . . . 
+            . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . 
+            . . . . . . . . . . . . . . . 
+            `) {
+            projectile5 = sprites.createProjectileFromSprite(img`
+                88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+                ........................................................................................................................................................................................................
+                ........................................................................................................................................................................................................
+                ........................................................................................................................................................................................................
+                ........................................................................................................................................................................................................
+                88888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888888
+                `, Enemy2, 0, 0)
+            projectile5.setFlag(SpriteFlag.Invisible, false)
+            projectile5.setKind(SpriteKind.G)
+            if (projectile5.overlapsWith(Ship)) {
+                projectile4 = sprites.createProjectileFromSprite(img`
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . 8 8 . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . 8 8 . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    . . . . . . . . . . . . . . . . 
+                    `, Enemy2, 100, 0)
+                projectile4.setKind(SpriteKind.Laser)
+                music.zapped.play()
+            }
+            projectile5.destroy()
         }
-        projectile3 = sprites.createProjectileFromSprite(Img, Enemy1, 100, 0)
-        projectile3.setKind(SpriteKind.Laser)
-        music.zapped.play()
     }
+})
+game.onUpdateInterval(100, function () {
+    Pewpew()
 })
 game.onUpdateInterval(200, function () {
     if (Math.percentChance(Enemyoffset)) {
@@ -378,12 +481,12 @@ game.onUpdateInterval(200, function () {
                 . . . . . . . . . . . . . . . 
                 . . . . . 2 2 2 . . . . . . . 
                 . . . . 2 2 . 2 2 . . . . . . 
-                . . . 2 2 . . . 2 2 f f . . . 
+                . . . 2 2 . . . 2 2 c c . . . 
                 . . 2 2 . . . . . . . . . . . 
                 4 2 2 2 2 2 7 7 . . . . . . . 
                 4 2 2 2 2 2 7 7 . . . . . . . 
                 . . 2 2 . . . . . . . . . . . 
-                . . . 2 2 . . . 2 2 f f . . . 
+                . . . 2 2 . . . 2 2 c c . . . 
                 . . . . 2 2 . 2 2 . . . . . . 
                 . . . . . 2 2 2 . . . . . . . 
                 . . . . . . . . . . . . . . . 
