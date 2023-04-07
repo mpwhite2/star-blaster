@@ -1,13 +1,6 @@
 namespace SpriteKind {
     export const Laser = SpriteKind.create()
     export const G = SpriteKind.create()
-    export const Text = SpriteKind.create()
-    export const StatusBar = SpriteKind.create()
-    export const Ball = SpriteKind.create()
-    export const Booth = SpriteKind.create()
-    export const Mouse = SpriteKind.create()
-    export const Crosshair = SpriteKind.create()
-    export const Moon = SpriteKind.create()
 }
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     if (sprites.allOfKind(SpriteKind.Enemy).length > 0) {
