@@ -97,8 +97,8 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, oth
     }
     sprite.destroy()
     otherSprite.destroy(effects.disintegrate, 500)
-    Laseroffset += 1
-    Enemyoffset += 1
+    Laseroffset += Increase
+    Enemyoffset += Increase
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     music.bigCrash.play()
@@ -119,8 +119,31 @@ let Img: Image = null
 let myEnemy: Sprite = null
 let Enemy1: Sprite = null
 let projectile6: Sprite = null
-let Laseroffset = 0
 let Ship: Sprite = null
+let Increase = 0
+let Laseroffset = 0
+let Enemyoffset = 0
+let Per = 0
+if (game.ask("Esay", "A = yes, B = no")) {
+    Per = 5
+    Enemyoffset = 10
+    Laseroffset = 5
+    info.setLife(10)
+    Increase = 0.25
+} else if (game.ask("Medium", "A = yes, B = no")) {
+    Per = 20
+    Laseroffset = 10
+    Enemyoffset = 10
+    info.setLife(5)
+    Increase = 1
+} else {
+    game.showLongText("Hard", DialogLayout.Bottom)
+    Laseroffset = 20
+    Enemyoffset = 20
+    Per = 40
+    info.setLife(3)
+    Increase = 2
+}
 game.setGameOverScoringType(game.ScoringType.HighScore)
 scroller.setLayerImage(scroller.BackgroundLayer.Layer0, img`
     ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -391,9 +414,6 @@ Ship.setStayInScreen(true)
 Ship.setPosition(145, 60)
 controller.moveSprite(Ship, 0, 50)
 info.setScore(0)
-Laseroffset = 10
-let Enemyoffset = 10
-info.setLife(5)
 game.onUpdate(function () {
     if (sprites.allOfKind(SpriteKind.Player).length > 2) {
         Enemy2 = sprites.allOfKind(SpriteKind.Enemy)._pickRandom()
@@ -520,7 +540,7 @@ game.onUpdateInterval(200, function () {
             `, 50, 0)
         projectile2.setKind(SpriteKind.Enemy)
         projectile2.y = randint(10, 110)
-        if (Math.percentChance(20)) {
+        if (Math.percentChance(Per)) {
             myEnemy = projectile2
             myEnemy.follow(Ship, 70)
             myEnemy.setImage(img`
