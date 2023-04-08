@@ -13,7 +13,7 @@ controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
             `, Ship, 0, 0)
         projectile6.follow(sprites.allOfKind(SpriteKind.Enemy)._pickRandom())
         projectile6.startEffect(effects.fire)
-        info.changeScoreBy(-1)
+        info.changeScoreBy(-100)
     }
 })
 function Pewpew () {
@@ -71,7 +71,19 @@ sprites.onOverlap(SpriteKind.Laser, SpriteKind.Projectile, function (sprite, oth
 })
 info.onLifeZero(function () {
     pause(500)
-    game.over(false)
+    if (info.score() > High) {
+        game.splash("GAME OVER!", "Score:" + info.score() + " New High Score!")
+        if (Level == 1) {
+            blockSettings.writeNumber("High 1", info.score())
+        } else if (Level == 2) {
+            blockSettings.writeNumber("High 2", info.score())
+        } else {
+            blockSettings.writeNumber("High 3", info.score())
+        }
+    } else {
+        game.splash("GAME OVER!", "Score:" + info.score() + " High:" + High)
+    }
+    game.reset()
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
     if (otherSprite.image.equals(img`
@@ -113,6 +125,7 @@ let projectile2: Sprite = null
 let projectile4: Sprite = null
 let projectile5: Sprite = null
 let Enemy2: Sprite = null
+let High = 0
 let projectile: Sprite = null
 let projectile3: Sprite = null
 let Img: Image = null
@@ -120,24 +133,33 @@ let myEnemy: Sprite = null
 let Enemy1: Sprite = null
 let projectile6: Sprite = null
 let Ship: Sprite = null
+let Level = 0
 let Increase = 0
 let Laseroffset = 0
 let Enemyoffset = 0
 let Per = 0
-if (game.ask("Esay", "A = yes, B = no")) {
+if (!(blockSettings.exists("High 1"))) {
+    blockSettings.writeNumber("High 1", 0)
+    blockSettings.writeNumber("High 2", 0)
+    blockSettings.writeNumber("High 3", 0)
+}
+if (game.ask("Easy", "A = yes, B = no")) {
     Per = 5
     Enemyoffset = 10
     Laseroffset = 5
     info.setLife(10)
     Increase = 0.25
+    Level = 1
 } else if (game.ask("Medium", "A = yes, B = no")) {
     Per = 20
     Laseroffset = 10
     Enemyoffset = 10
     info.setLife(5)
     Increase = 1
+    Level = 2
 } else {
     game.showLongText("Hard", DialogLayout.Bottom)
+    Level = 3
     Laseroffset = 20
     Enemyoffset = 20
     Per = 40
@@ -414,6 +436,15 @@ Ship.setStayInScreen(true)
 Ship.setPosition(145, 60)
 controller.moveSprite(Ship, 0, 50)
 info.setScore(0)
+game.onUpdate(function () {
+    if (Level == 1) {
+        High = blockSettings.readNumber("High 1")
+    } else if (Level == 2) {
+        High = blockSettings.readNumber("High 2")
+    } else {
+        High = blockSettings.readNumber("High 3")
+    }
+})
 game.onUpdate(function () {
     if (sprites.allOfKind(SpriteKind.Player).length > 2) {
         Enemy2 = sprites.allOfKind(SpriteKind.Enemy)._pickRandom()
