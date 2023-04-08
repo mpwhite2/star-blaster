@@ -111,6 +111,9 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, oth
     otherSprite.destroy(effects.disintegrate, 500)
     Laseroffset += Increase
     Enemyoffset += Increase
+    if (Per < 80) {
+        Per += 1
+    }
 })
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     music.bigCrash.play()
